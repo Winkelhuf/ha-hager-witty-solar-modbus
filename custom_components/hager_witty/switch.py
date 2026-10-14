@@ -1,54 +1,55 @@
-"""Schalter-Plattform: Verfügbarkeit und Fallback-Verzögerung der Witty."""
-
+"""Support for Hager Witty Solar switches and coils."""
 from __future__ import annotations
 
-from typing import Any
-
-from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
-from homeassistant.const import EntityCategory
+import logging
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .data import WittyConfigEntry
-from .entity import WittyEntity
+from .const import DOMAIN, COIL_STATION_AVAILABLE, COIL_SWITCH_3_TO_1, COIL_ENABLE_RFID_AUTH, COIL_EV41_COMPLIANCE
 
-PARALLEL_UPDATES = 1
-
-SWITCH_DESCRIPTIONS: tuple[SwitchEntityDescription, ...] = (
-    # 0x3020: 0 = Ladestation gesperrt (HMI rot), 1 = verfügbar
-    SwitchEntityDescription(key="evcs_available"),
-    # 0x3021: Wert, den die Wallbox bei Verbindungsverlust übernimmt
-    SwitchEntityDescription(key="evcs_available_fallback", entity_category=EntityCategory.CONFIG),
-    # 0x3026: 0 = Fallback sofort, 1 = Fallback nach 30 s Verzögerung
-    SwitchEntityDescription(key="fallback_delay", entity_category=EntityCategory.CONFIG),
-)
-
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: WittyConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant, entry: config_entries.ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte die Schalter-Plattform ein."""
-    coordinator = entry.runtime_data.coordinator
-    async_add_entities(WittySwitch(coordinator, description) for description in SWITCH_DESCRIPTIONS)
+    """Set up Witty Solar switch entities."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    
+    switches = [
+        WittySwitch(coordinator, "Station Available", COIL_STATION_AVAILABLE),
+        WittySwitch(coordinator, "Switch 3 to 1 Phase", COIL_SWITCH_3_TO_1),
+        WittySwitch(coordinator, "RFID Authentication", COIL_ENABLE_RFID_AUTH),
+        WittySwitch(coordinator, "EV41 Compliance", COIL_EV41_COMPLIANCE),
+    ]
+    
+    async_add_entities(switches)
 
+class WittySwitch(CoordinatorEntity, SwitchEntity):
+    """Representation of a Witty Solar Switch/Coil."""
 
-class WittySwitch(WittyEntity, SwitchEntity):
-    """Ein 0/1-Register der Wallbox."""
-
-    entity_description: SwitchEntityDescription
+    def __init__(self, coordinator, name, coil_address):
+        """Initialize the switch."""
+        super().__init__(coordinator)
+        self.coordinator = coordinator
+        self._attr_name = f"Witty Solar {name}"
+        self._coil_address = coil_address
+        self._attr_unique_id = f"witty_solar_coil_{coil_address}"
 
     @property
-    def is_on(self) -> bool | None:
-        """Gibt den aktuellen Zustand zurück (Registerwert 1 = an)."""
-        raw = self.coordinator.data.get(self.entity_description.key)
-        return None if raw is None else raw == 1
+    def is_on(self) -> bool:
+        """Return true if the switch is on."""
+        return bool(self.coordinator.data.get(f"coil_{self._coil_address}", False))
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        """Schalte an (Register = 1)."""
-        await self.coordinator.async_write_value(self.entity_description.key, 1)
+    async def async_turn_on(self, **kwargs) -> None:
+        """Turn the switch on."""
+        client = self.coordinator.modbus_client
+        await client.write_coil(self._coil_address, True)
+        await self.coordinator.async_request_refresh()
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        """Schalte aus (Register = 0)."""
-        await self.coordinator.async_write_value(self.entity_description.key, 0)
+    async def async_turn_off(self, **kwargs) -> None:
+        """Turn the switch off."""
+        client = self.coordinator.modbus_client
+        await client.write_coil(self._coil_address, False)
+        await self.coordinator.async_request_refresh()

@@ -2,341 +2,50 @@
   "config": {
     "step": {
       "user": {
-        "title": "Add Hager Witty wallbox",
-        "description": "Enter the IP address of your Witty wallbox. Modbus TCP must be enabled in the Hager mobile app first.",
         "data": {
-          "host": "IP address (e.g., 192.168.1.50)",
-          "name": "Name",
-          "port": "Port",
-          "unit_id": "Unit ID"
+          "host": "IP Address or Hostname",
+          "port": "Modbus Port"
         },
-        "data_description": {
-          "unit_id": "Modbus unit identifier of the wallbox (default 1)."
-        }
-      },
-      "reconfigure": {
-        "title": "Change connection",
-        "description": "Enter the new connection data of this wallbox.",
-        "data": {
-          "host": "IP address (e.g., 192.168.1.50)",
-          "port": "Port",
-          "unit_id": "Unit ID"
-        }
+        "description": "Connect your Hager Witty Solar wallbox via Modbus TCP."
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to the wallbox. Please check the IP address, and that Modbus TCP is enabled and no other client is connected (the Witty allows only one connection).",
-      "unknown": "Unexpected error. Please check the Home Assistant log."
+      "cannot_connect": "Failed to connect",
+      "invalid_host": "Invalid IP address or hostname"
     },
     "abort": {
-      "already_configured": "This wallbox is already configured.",
-      "wrong_device": "The device at this address is a different wallbox.",
-      "reconfigure_successful": "The connection data was updated."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Polling",
-        "data": {
-          "scan_interval": "Polling interval (seconds)"
-        }
-      }
+      "already_configured": "Device is already configured"
     }
   },
   "entity": {
     "sensor": {
-      "status": {
-        "name": "Status",
-        "state": {
-          "no_error": "No error",
-          "idle": "Idle",
-          "initialization": "Initializing",
-          "wait_auth": "Waiting for authorization",
-          "wait_ev_plug": "Waiting for vehicle to be plugged in",
-          "wait_ev_unplug": "Waiting for vehicle to be unplugged",
-          "wait_charging": "Waiting for charging",
-          "wait_ocpp_auth": "Waiting for OCPP authorization",
-          "wait_modbus_tcp_auth": "Waiting for Modbus TCP authorization",
-          "wait_energy_off": "Waiting: energy off",
-          "wait_energy_off_forced": "Waiting: energy off (forced)",
-          "wait_energy_grid_load_shedding": "Waiting: grid load shedding",
-          "wait_energy_overheat": "Waiting: overheating",
-          "wait_energy_smart_meter_tariff": "Waiting: smart meter tariff",
-          "wait_energy_smart_meter_current": "Waiting: smart meter current limit",
-          "wait_energy_smart_meter_lost": "Waiting: smart meter lost",
-          "wait_energy_input_forcing": "Waiting: forcing input",
-          "wait_energy_input_day_night": "Waiting: day/night input",
-          "wait_energy_hmi_lost": "Waiting: HMI lost",
-          "wait_energy_solar_reg": "Waiting: not enough solar power",
-          "wait_energy_solar_eco": "Waiting: not enough solar power (eco)",
-          "wait_energy_ocpp": "Waiting: OCPP limit",
-          "wait_energy_modbus_tcp_normal": "Waiting: Modbus TCP (normal mode)",
-          "wait_energy_modbus_tcp_boost": "Waiting: Modbus TCP (boost mode)",
-          "wait_energy_modbus_tcp_solar": "Waiting: Modbus TCP (solar mode)",
-          "wait_energy_modbus_tcp_lost": "Waiting: Modbus TCP connection lost",
-          "charging_normal": "Charging (normal)",
-          "charging_slow": "Charging (slow)",
-          "charging_grid_load_shedding": "Charging (grid load shedding)",
-          "charging_smart_meter_lost": "Charging (smart meter lost)",
-          "charging_normal_forced": "Charging (normal, forced)",
-          "charging_slow_forced": "Charging (slow, forced)",
-          "charging_limited_hmi_lost": "Charging (limited, HMI lost)",
-          "charging_limited_option_board_default": "Charging (limited, option board default)",
-          "charging_solar": "Charging (solar)",
-          "charging_solar_eco": "Charging (solar eco)",
-          "charging_forced_solar": "Charging (forced solar)",
-          "charging_forced_solar_eco": "Charging (forced solar eco)",
-          "charging_modbus_tcp_normal": "Charging (Modbus TCP, normal mode)",
-          "charging_modbus_tcp_boost": "Charging (Modbus TCP, boost mode)",
-          "charging_modbus_tcp_solar": "Charging (Modbus TCP, solar mode)",
-          "charging_modbus_tcp_lost": "Charging (Modbus TCP connection lost)",
-          "charge_finished": "Charge finished",
-          "ocpp_reservation": "OCPP reservation",
-          "error_relay_4c_welded": "Error: relay 4C welded",
-          "error_relay_4c_broken": "Error: relay 4C broken",
-          "error_relay_4c_supply": "Error: relay 4C supply",
-          "error_rcd_broken": "Error: RCD broken",
-          "error_rotary_switch": "Error: rotary switch",
-          "error_socket_lock": "Error: socket lock",
-          "error_socket_manual_unlock": "Error: socket manually unlocked",
-          "error_socket_manual_lock": "Error: socket manually locked",
-          "error_relay_l2_l3_welded": "Error: relay L2/L3 welded",
-          "error_relay_l2_l3_broken": "Error: relay L2/L3 broken",
-          "error_relay_l2_l3_supply": "Error: relay L2/L3 supply",
-          "error_ev_rcd_6ma": "Error: vehicle RCD 6 mA",
-          "error_ev_shunt_diode": "Error: vehicle shunt diode",
-          "error_ev_state_e": "Error: vehicle state E",
-          "error_ev_ventilation": "Error: vehicle ventilation",
-          "error_ev_simplified": "Error: vehicle simplified protocol",
-          "error_ev_overload": "Error: vehicle overload",
-          "error_ev_rcd_30ma_ac": "Error: vehicle RCD 30 mA AC",
-          "error_cable": "Error: cable",
-          "error_ocpp_inoperative": "Error: OCPP inoperative",
-          "error_evse_energy_meter": "Error: energy meter",
-          "error_modbus_tcp_inoperative": "Error: Modbus TCP inoperative",
-          "status_unknown": "Unknown"
-        }
-      },
-      "cp_state": {
-        "name": "Control pilot state",
-        "state": {
-          "a1": "A1 – no vehicle, not ready",
-          "a2": "A2 – no vehicle, ready",
-          "b1": "B1 – vehicle connected, not ready",
-          "b2": "B2 – vehicle connected, ready",
-          "c1": "C1 – charging requested, not ready",
-          "c2": "C2 – charging",
-          "d1": "D1 – ventilation requested, not ready",
-          "d2": "D2 – ventilation requested, ready",
-          "e": "E – error",
-          "f": "F – unavailable / default"
-        }
-      },
-      "lock_state": {
-        "name": "Cable lock",
-        "state": {
-          "unlocked": "Unlocked",
-          "locked": "Locked",
-          "disabled_tethered": "Disabled (cable tethered)",
-          "blocked_unlocked": "Blocked (unlocked)",
-          "blocked_locked": "Blocked (locked)"
-        }
-      },
-      "session_state": {
-        "name": "Session state",
-        "state": {
-          "no_session": "No session",
-          "running": "Running",
-          "ended": "Ended"
-        }
-      },
-      "stop_reason": {
-        "name": "Last stop reason",
-        "state": {
-          "no_session": "No charging session",
-          "session_running": "Charging session running",
-          "ev_unplug": "Stopped: vehicle unplugged",
-          "user_badge": "Stopped: user badge",
-          "user_group_badge": "Stopped: user group badge",
-          "admin_badge": "Stopped: admin badge",
-          "power_lost": "Stopped: power lost",
-          "reset_request": "Stopped: reset request",
-          "watchdog": "Stopped: watchdog",
-          "assert": "Stopped: assert",
-          "ocpp_remote_stop": "Stopped: OCPP remote stop",
-          "ocpp_deauthorize": "Stopped: OCPP deauthorize",
-          "ocpp_parent_id": "Stopped: OCPP parent ID",
-          "ocpp_unlock": "Stopped: OCPP unlock",
-          "ocpp_reset": "Stopped: OCPP reset",
-          "modbus_tcp_availability": "Stopped: Modbus TCP availability",
-          "ocpp_availability": "Stopped: OCPP availability",
-          "rotary_invalid_position": "Stopped: invalid rotary switch position",
-          "lock_fail": "Stopped: lock failure",
-          "manual_unlock": "Stopped: manual unlock",
-          "ev_6ma_error": "Stopped: vehicle 6 mA error",
-          "ev_state_e": "Stopped: vehicle state E",
-          "ev_simplified": "Stopped: vehicle simplified protocol",
-          "ev_ventilation": "Stopped: vehicle ventilation",
-          "ev_shunt_diode_error": "Stopped: vehicle shunt diode error",
-          "ev_overload": "Stopped: vehicle overload",
-          "cable_error": "Stopped: cable error",
-          "rcd_sensor_default": "Stopped: RCD sensor fault",
-          "relay_4c_supply": "Stopped: relay 4C supply",
-          "relay_4c_welded": "Stopped: relay 4C welded",
-          "relay_4c_broken": "Stopped: relay 4C broken",
-          "multiple_same_option_board": "Stopped: multiple identical option boards",
-          "energy_meter_error": "Stopped: energy meter error",
-          "relay_l2_l3_supply": "Stopped: relay L2/L3 supply",
-          "relay_l2_l3_welded": "Stopped: relay L2/L3 welded",
-          "relay_l2_l3_broken": "Stopped: relay L2/L3 broken",
-          "ev_30ma_ac_error": "Stopped: vehicle 30 mA AC error"
-        }
-      },
-      "badge_type": {
-        "name": "Session badge type",
-        "state": {
-          "local": "Local badge",
-          "ocpp": "OCPP badge"
-        }
-      },
-      "power_total": {
-        "name": "Power"
-      },
-      "power_l1": {
-        "name": "Power L1"
-      },
-      "power_l2": {
-        "name": "Power L2"
-      },
-      "power_l3": {
-        "name": "Power L3"
-      },
-      "current_l1": {
-        "name": "Current L1"
-      },
-      "current_l2": {
-        "name": "Current L2"
-      },
-      "current_l3": {
-        "name": "Current L3"
-      },
-      "voltage_l1": {
-        "name": "Voltage L1"
-      },
-      "voltage_l2": {
-        "name": "Voltage L2"
-      },
-      "voltage_l3": {
-        "name": "Voltage L3"
-      },
-      "session_energy": {
-        "name": "Energy current session"
-      },
-      "energy_total": {
-        "name": "Energy total"
-      },
-      "charge_duration": {
-        "name": "Charging duration"
-      },
-      "session_start": {
-        "name": "Session start"
-      },
-      "session_stop": {
-        "name": "Session end"
-      },
-      "session_badge": {
-        "name": "Session badge"
-      },
-      "pwm_duty": {
-        "name": "PWM duty cycle"
-      },
-      "hw_current_limit": {
-        "name": "Hardware current limit"
-      },
-      "cable_current_limit": {
-        "name": "Cable current limit"
-      },
-      "rfid_tag": {
-        "name": "Last RFID tag"
-      },
-      "wallbox_time": {
-        "name": "Wallbox clock"
-      }
-    },
-    "binary_sensor": {
-      "charging": {
-        "name": "Charging"
-      },
-      "vehicle_connected": {
-        "name": "Vehicle connected"
-      },
-      "error": {
-        "name": "Error"
-      },
-      "time_set": {
-        "name": "Clock set"
-      }
-    },
-    "number": {
-      "max_current": {
-        "name": "Maximum charging current"
-      },
-      "max_current_fallback": {
-        "name": "Maximum charging current (fallback)"
-      }
-    },
-    "select": {
-      "phase_mode": {
-        "name": "Phase mode",
-        "state": {
-          "three_phase": "3 phases",
-          "single_phase": "1 phase only"
-        }
-      },
-      "phase_mode_fallback": {
-        "name": "Phase mode (fallback)",
-        "state": {
-          "three_phase": "3 phases",
-          "single_phase": "1 phase only"
-        }
-      },
-      "rfid_feedback": {
-        "name": "RFID feedback",
-        "state": {
-          "no_feedback": "No feedback",
-          "authorized": "Authorized",
-          "not_authorized": "Not authorized",
-          "discarded": "Discarded"
-        }
-      }
+      "cp_state": { "name": "Control Pilot State" },
+      "pwm_value": { "name": "PWM Value" },
+      "current_p1": { "name": "Current Phase 1" },
+      "current_p2": { "name": "Current Phase 2" },
+      "current_p3": { "name": "Current Phase 3" },
+      "voltage_p1": { "name": "Voltage Phase 1" },
+      "voltage_p2": { "name": "Voltage Phase 2" },
+      "voltage_p3": { "name": "Voltage Phase 3" },
+      "power_p1": { "name": "Power Phase 1" },
+      "power_p2": { "name": "Power Phase 2" },
+      "power_p3": { "name": "Power Phase 3" },
+      "energy_session": { "name": "Energy (Session)" },
+      "error_code": { "name": "Error Code" },
+      "rfid_tag_uid": { "name": "RFID Tag UID" },
+      "boost_solar_mode": { "name": "Boost/Solar Mode" },
+      "software_version": { "name": "Software Version" }
     },
     "switch": {
-      "evcs_available": {
-        "name": "Available"
-      },
-      "evcs_available_fallback": {
-        "name": "Available (fallback)"
-      },
-      "fallback_delay": {
-        "name": "Delay fallback by 30 s"
-      }
+      "station_available": { "name": "Station Available (HMI Unlocked)" },
+      "switch_3_to_1": { "name": "Force 1-Phase Mode (Switch 3to1)" },
+      "enable_rfid_auth": { "name": "Enable RFID Authentication" },
+      "ev41_compliance": { "name": "EV41 Compliance" }
     },
-    "button": {
-      "sync_time": {
-        "name": "Synchronize clock"
-      }
-    }
-  },
-  "exceptions": {
-    "invalid_value": {
-      "message": "Invalid value: {error}"
-    },
-    "write_rejected": {
-      "message": "The wallbox rejected the write to register {register}: {error}"
-    },
-    "write_failed": {
-      "message": "Writing to the wallbox failed: {error}"
+    "number": {
+      "maximum_charging_current": { "name": "Maximum Charging Current" },
+      "maximum_charging_current_fallback": { "name": "Maximum Charging Current (Fallback)" },
+      "led_intensity": { "name": "LED Intensity" }
     }
   }
 }

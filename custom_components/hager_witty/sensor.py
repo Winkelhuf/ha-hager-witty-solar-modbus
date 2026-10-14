@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
@@ -38,7 +37,6 @@ async def async_setup_entry(
         WittySensor(coordinator, "Error Code", "error_code", None, None),
         WittySensor(coordinator, "RFID Tag UID", "rfid_tag_uid", None, None),
         WittySensor(coordinator, "Boost/Solar Mode", "boost_solar_mode", None, None),
-        WittySensor(coordinator, "Firmware Version", "software_version", None, None),
     ]
     
     async_add_entities(sensors)

@@ -2,341 +2,50 @@
   "config": {
     "step": {
       "user": {
-        "title": "Hager Witty Wallbox hinzufügen",
-        "description": "Gib die IP-Adresse deiner Witty Wallbox ein. Modbus TCP muss vorher in der Hager-App aktiviert werden.",
         "data": {
-          "host": "IP-Adresse (z.B. 192.168.1.50)",
-          "name": "Name",
-          "port": "Port",
-          "unit_id": "Unit-ID"
+          "host": "IP-Adresse oder Hostname",
+          "port": "Modbus Port"
         },
-        "data_description": {
-          "unit_id": "Modbus-Unit-Identifier der Wallbox (Standard 1)."
-        }
-      },
-      "reconfigure": {
-        "title": "Verbindung ändern",
-        "description": "Trage die neuen Verbindungsdaten dieser Wallbox ein.",
-        "data": {
-          "host": "IP-Adresse (z.B. 192.168.1.50)",
-          "port": "Port",
-          "unit_id": "Unit-ID"
-        }
+        "description": "Verbinde deine Hager Witty Solar Wallbox über Modbus TCP."
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zur Wallbox nicht möglich. Bitte IP-Adresse prüfen, ob Modbus TCP aktiviert ist und ob kein anderer Client verbunden ist (die Witty erlaubt nur eine Verbindung).",
-      "unknown": "Unerwarteter Fehler. Bitte das Home-Assistant-Protokoll prüfen."
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "invalid_host": "Ungültige IP-Adresse oder Hostname"
     },
     "abort": {
-      "already_configured": "Diese Wallbox ist bereits eingerichtet.",
-      "wrong_device": "Unter dieser Adresse antwortet eine andere Wallbox.",
-      "reconfigure_successful": "Die Verbindungsdaten wurden aktualisiert."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Abfrage",
-        "data": {
-          "scan_interval": "Abfrageintervall (Sekunden)"
-        }
-      }
+      "already_configured": "Dieses Gerät ist bereits konfiguriert"
     }
   },
   "entity": {
     "sensor": {
-      "status": {
-        "name": "Status",
-        "state": {
-          "no_error": "Kein Fehler",
-          "idle": "Bereit",
-          "initialization": "Initialisierung",
-          "wait_auth": "Wartet auf Autorisierung",
-          "wait_ev_plug": "Wartet auf Fahrzeug (einstecken)",
-          "wait_ev_unplug": "Wartet auf Abstecken des Fahrzeugs",
-          "wait_charging": "Wartet auf Ladefreigabe",
-          "wait_ocpp_auth": "Wartet auf OCPP-Autorisierung",
-          "wait_modbus_tcp_auth": "Wartet auf Modbus-TCP-Autorisierung",
-          "wait_energy_off": "Wartet: Energie aus",
-          "wait_energy_off_forced": "Wartet: Energie aus (erzwungen)",
-          "wait_energy_grid_load_shedding": "Wartet: Netzlastabwurf",
-          "wait_energy_overheat": "Wartet: Übertemperatur",
-          "wait_energy_smart_meter_tariff": "Wartet: Smart-Meter-Tarif",
-          "wait_energy_smart_meter_current": "Wartet: Smart-Meter-Stromgrenze",
-          "wait_energy_smart_meter_lost": "Wartet: Smart Meter verloren",
-          "wait_energy_input_forcing": "Wartet: Eingang Zwangsladen",
-          "wait_energy_input_day_night": "Wartet: Eingang Tag/Nacht",
-          "wait_energy_hmi_lost": "Wartet: Bedienteil verloren",
-          "wait_energy_solar_reg": "Wartet: zu wenig Solarleistung",
-          "wait_energy_solar_eco": "Wartet: zu wenig Solarleistung (Eco)",
-          "wait_energy_ocpp": "Wartet: OCPP-Begrenzung",
-          "wait_energy_modbus_tcp_normal": "Wartet: Modbus TCP (Normalmodus)",
-          "wait_energy_modbus_tcp_boost": "Wartet: Modbus TCP (Boostmodus)",
-          "wait_energy_modbus_tcp_solar": "Wartet: Modbus TCP (Solarmodus)",
-          "wait_energy_modbus_tcp_lost": "Wartet: Modbus-TCP-Verbindung verloren",
-          "charging_normal": "Lädt (normal)",
-          "charging_slow": "Lädt (langsam)",
-          "charging_grid_load_shedding": "Lädt (Netzlastabwurf)",
-          "charging_smart_meter_lost": "Lädt (Smart Meter verloren)",
-          "charging_normal_forced": "Lädt (normal, erzwungen)",
-          "charging_slow_forced": "Lädt (langsam, erzwungen)",
-          "charging_limited_hmi_lost": "Lädt (begrenzt, Bedienteil verloren)",
-          "charging_limited_option_board_default": "Lädt (begrenzt, Optionsplatine Standard)",
-          "charging_solar": "Lädt (Solar)",
-          "charging_solar_eco": "Lädt (Solar Eco)",
-          "charging_forced_solar": "Lädt (Solar erzwungen)",
-          "charging_forced_solar_eco": "Lädt (Solar Eco erzwungen)",
-          "charging_modbus_tcp_normal": "Lädt (Modbus TCP, Normalmodus)",
-          "charging_modbus_tcp_boost": "Lädt (Modbus TCP, Boostmodus)",
-          "charging_modbus_tcp_solar": "Lädt (Modbus TCP, Solarmodus)",
-          "charging_modbus_tcp_lost": "Lädt (Modbus-TCP-Verbindung verloren)",
-          "charge_finished": "Ladung beendet",
-          "ocpp_reservation": "OCPP-Reservierung",
-          "error_relay_4c_welded": "Fehler: Relais 4C verschweißt",
-          "error_relay_4c_broken": "Fehler: Relais 4C defekt",
-          "error_relay_4c_supply": "Fehler: Relais 4C Versorgung",
-          "error_rcd_broken": "Fehler: FI-Sensor defekt",
-          "error_rotary_switch": "Fehler: Drehschalter",
-          "error_socket_lock": "Fehler: Steckdosenverriegelung",
-          "error_socket_manual_unlock": "Fehler: Steckdose manuell entriegelt",
-          "error_socket_manual_lock": "Fehler: Steckdose manuell verriegelt",
-          "error_relay_l2_l3_welded": "Fehler: Relais L2/L3 verschweißt",
-          "error_relay_l2_l3_broken": "Fehler: Relais L2/L3 defekt",
-          "error_relay_l2_l3_supply": "Fehler: Relais L2/L3 Versorgung",
-          "error_ev_rcd_6ma": "Fehler: Fahrzeug FI 6 mA",
-          "error_ev_shunt_diode": "Fehler: Fahrzeug Shunt-Diode",
-          "error_ev_state_e": "Fehler: Fahrzeug Zustand E",
-          "error_ev_ventilation": "Fehler: Fahrzeug Belüftung",
-          "error_ev_simplified": "Fehler: Fahrzeug vereinfachtes Protokoll",
-          "error_ev_overload": "Fehler: Fahrzeug Überlast",
-          "error_ev_rcd_30ma_ac": "Fehler: Fahrzeug FI 30 mA AC",
-          "error_cable": "Fehler: Kabel",
-          "error_ocpp_inoperative": "Fehler: OCPP außer Betrieb",
-          "error_evse_energy_meter": "Fehler: Energiezähler",
-          "error_modbus_tcp_inoperative": "Fehler: Modbus TCP außer Betrieb",
-          "status_unknown": "Unbekannt"
-        }
-      },
-      "cp_state": {
-        "name": "Control-Pilot-Zustand",
-        "state": {
-          "a1": "A1 – kein Fahrzeug, nicht bereit",
-          "a2": "A2 – kein Fahrzeug, bereit",
-          "b1": "B1 – Fahrzeug verbunden, nicht bereit",
-          "b2": "B2 – Fahrzeug verbunden, bereit",
-          "c1": "C1 – Ladeanforderung, nicht bereit",
-          "c2": "C2 – lädt",
-          "d1": "D1 – Belüftung angefordert, nicht bereit",
-          "d2": "D2 – Belüftung angefordert, bereit",
-          "e": "E – Fehler",
-          "f": "F – nicht verfügbar / Standard"
-        }
-      },
-      "lock_state": {
-        "name": "Kabelverriegelung",
-        "state": {
-          "unlocked": "Entriegelt",
-          "locked": "Verriegelt",
-          "disabled_tethered": "Deaktiviert (fest angeschlagenes Kabel)",
-          "blocked_unlocked": "Blockiert (entriegelt)",
-          "blocked_locked": "Blockiert (verriegelt)"
-        }
-      },
-      "session_state": {
-        "name": "Session-Zustand",
-        "state": {
-          "no_session": "Keine Session",
-          "running": "Läuft",
-          "ended": "Beendet"
-        }
-      },
-      "stop_reason": {
-        "name": "Letzter Stoppgrund",
-        "state": {
-          "no_session": "Keine Ladesession",
-          "session_running": "Ladesession läuft",
-          "ev_unplug": "Beendet: Fahrzeug abgesteckt",
-          "user_badge": "Beendet: Benutzer-Badge",
-          "user_group_badge": "Beendet: Benutzergruppen-Badge",
-          "admin_badge": "Beendet: Admin-Badge",
-          "power_lost": "Beendet: Stromausfall",
-          "reset_request": "Beendet: Reset-Anforderung",
-          "watchdog": "Beendet: Watchdog",
-          "assert": "Beendet: Assert",
-          "ocpp_remote_stop": "Beendet: OCPP-Fernstopp",
-          "ocpp_deauthorize": "Beendet: OCPP-Autorisierung entzogen",
-          "ocpp_parent_id": "Beendet: OCPP-Parent-ID",
-          "ocpp_unlock": "Beendet: OCPP-Entriegelung",
-          "ocpp_reset": "Beendet: OCPP-Reset",
-          "modbus_tcp_availability": "Beendet: Modbus-TCP-Verfügbarkeit",
-          "ocpp_availability": "Beendet: OCPP-Verfügbarkeit",
-          "rotary_invalid_position": "Beendet: ungültige Drehschalterstellung",
-          "lock_fail": "Beendet: Verriegelungsfehler",
-          "manual_unlock": "Beendet: manuelle Entriegelung",
-          "ev_6ma_error": "Beendet: Fahrzeug 6-mA-Fehler",
-          "ev_state_e": "Beendet: Fahrzeug Zustand E",
-          "ev_simplified": "Beendet: Fahrzeug vereinfachtes Protokoll",
-          "ev_ventilation": "Beendet: Fahrzeug Belüftung",
-          "ev_shunt_diode_error": "Beendet: Fahrzeug Shunt-Diodenfehler",
-          "ev_overload": "Beendet: Fahrzeug Überlast",
-          "cable_error": "Beendet: Kabelfehler",
-          "rcd_sensor_default": "Beendet: FI-Sensor Fehler",
-          "relay_4c_supply": "Beendet: Relais 4C Versorgung",
-          "relay_4c_welded": "Beendet: Relais 4C verschweißt",
-          "relay_4c_broken": "Beendet: Relais 4C defekt",
-          "multiple_same_option_board": "Beendet: mehrere gleiche Optionsplatinen",
-          "energy_meter_error": "Beendet: Energiezähler-Fehler",
-          "relay_l2_l3_supply": "Beendet: Relais L2/L3 Versorgung",
-          "relay_l2_l3_welded": "Beendet: Relais L2/L3 verschweißt",
-          "relay_l2_l3_broken": "Beendet: Relais L2/L3 defekt",
-          "ev_30ma_ac_error": "Beendet: Fahrzeug 30-mA-AC-Fehler"
-        }
-      },
-      "badge_type": {
-        "name": "Session-Badge-Typ",
-        "state": {
-          "local": "Lokaler Badge",
-          "ocpp": "OCPP-Badge"
-        }
-      },
-      "power_total": {
-        "name": "Leistung"
-      },
-      "power_l1": {
-        "name": "Leistung L1"
-      },
-      "power_l2": {
-        "name": "Leistung L2"
-      },
-      "power_l3": {
-        "name": "Leistung L3"
-      },
-      "current_l1": {
-        "name": "Strom L1"
-      },
-      "current_l2": {
-        "name": "Strom L2"
-      },
-      "current_l3": {
-        "name": "Strom L3"
-      },
-      "voltage_l1": {
-        "name": "Spannung L1"
-      },
-      "voltage_l2": {
-        "name": "Spannung L2"
-      },
-      "voltage_l3": {
-        "name": "Spannung L3"
-      },
-      "session_energy": {
-        "name": "Energie aktuelle Session"
-      },
-      "energy_total": {
-        "name": "Energie gesamt"
-      },
-      "charge_duration": {
-        "name": "Ladedauer"
-      },
-      "session_start": {
-        "name": "Session-Start"
-      },
-      "session_stop": {
-        "name": "Session-Ende"
-      },
-      "session_badge": {
-        "name": "Session-Badge"
-      },
-      "pwm_duty": {
-        "name": "PWM-Tastverhältnis"
-      },
-      "hw_current_limit": {
-        "name": "Hardware-Stromgrenze"
-      },
-      "cable_current_limit": {
-        "name": "Kabel-Stromgrenze"
-      },
-      "rfid_tag": {
-        "name": "Letzter RFID-Tag"
-      },
-      "wallbox_time": {
-        "name": "Wallbox-Uhrzeit"
-      }
-    },
-    "binary_sensor": {
-      "charging": {
-        "name": "Lädt"
-      },
-      "vehicle_connected": {
-        "name": "Fahrzeug verbunden"
-      },
-      "error": {
-        "name": "Fehler"
-      },
-      "time_set": {
-        "name": "Uhrzeit gesetzt"
-      }
-    },
-    "number": {
-      "max_current": {
-        "name": "Maximaler Ladestrom"
-      },
-      "max_current_fallback": {
-        "name": "Maximaler Ladestrom (Fallback)"
-      }
-    },
-    "select": {
-      "phase_mode": {
-        "name": "Phasenumschaltung",
-        "state": {
-          "three_phase": "3 Phasen",
-          "single_phase": "Nur 1 Phase"
-        }
-      },
-      "phase_mode_fallback": {
-        "name": "Phasenumschaltung (Fallback)",
-        "state": {
-          "three_phase": "3 Phasen",
-          "single_phase": "Nur 1 Phase"
-        }
-      },
-      "rfid_feedback": {
-        "name": "RFID-Rückmeldung",
-        "state": {
-          "no_feedback": "Keine Rückmeldung",
-          "authorized": "Autorisiert",
-          "not_authorized": "Nicht autorisiert",
-          "discarded": "Verworfen"
-        }
-      }
+      "cp_state": { "name": "Control Pilot Zustand" },
+      "pwm_value": { "name": "PWM Wert" },
+      "current_p1": { "name": "Strom Phase 1" },
+      "current_p2": { "name": "Strom Phase 2" },
+      "current_p3": { "name": "Strom Phase 3" },
+      "voltage_p1": { "name": "Spannung Phase 1" },
+      "voltage_p2": { "name": "Spannung Phase 2" },
+      "voltage_p3": { "name": "Spannung Phase 3" },
+      "power_p1": { "name": "Leistung Phase 1" },
+      "power_p2": { "name": "Leistung Phase 2" },
+      "power_p3": { "name": "Leistung Phase 3" },
+      "energy_session": { "name": "Energie (Ladesitzung)" },
+      "error_code": { "name": "Fehlercode" },
+      "rfid_tag_uid": { "name": "RFID Chip UID" },
+      "boost_solar_mode": { "name": "Boost/Solar Modus" },
+      "software_version": { "name": "Software Version" }
     },
     "switch": {
-      "evcs_available": {
-        "name": "Verfügbar"
-      },
-      "evcs_available_fallback": {
-        "name": "Verfügbar (Fallback)"
-      },
-      "fallback_delay": {
-        "name": "Fallback 30 s verzögern"
-      }
+      "station_available": { "name": "Station verfügbar (HMI entsperrt)" },
+      "switch_3_to_1": { "name": "1-Phasen-Modus erzwingen (Switch 3to1)" },
+      "enable_rfid_auth": { "name": "RFID-Authentifizierung aktivieren" },
+      "ev41_compliance": { "name": "EV41 Konformität" }
     },
-    "button": {
-      "sync_time": {
-        "name": "Uhrzeit synchronisieren"
-      }
-    }
-  },
-  "exceptions": {
-    "invalid_value": {
-      "message": "Ungültiger Wert: {error}"
-    },
-    "write_rejected": {
-      "message": "Die Wallbox hat das Schreiben in Register {register} abgelehnt: {error}"
-    },
-    "write_failed": {
-      "message": "Schreiben zur Wallbox fehlgeschlagen: {error}"
+    "number": {
+      "maximum_charging_current": { "name": "Maximaler Ladestrom" },
+      "maximum_charging_current_fallback": { "name": "Maximaler Ladestrom (Fallback)" },
+      "led_intensity": { "name": "LED Helligkeit" }
     }
   }
 }
