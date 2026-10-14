@@ -9,32 +9,7 @@ from pymodbus.exceptions import ModbusException
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from ..const import (
-    DOMAIN,
-    DEFAULT_SCAN_INTERVAL,
-    REG_CP_STATE,
-    REG_PWM_VALUE,
-    REG_CURRENT_PHASE_1,
-    REG_CURRENT_PHASE_2,
-    REG_CURRENT_PHASE_3,
-    REG_VOLTAGE_PHASE_1,
-    REG_VOLTAGE_PHASE_2,
-    REG_VOLTAGE_PHASE_3,
-    REG_POWER_PHASE_1,
-    REG_POWER_PHASE_2,
-    REG_POWER_PHASE_3,
-    REG_MAX_CHARGING_CURRENT,
-    REG_MAX_CHARGING_CURRENT_FB,
-    REG_ERROR_CODE,
-    REG_ENERGY_SESSION,
-    REG_LED_INTENSITY,
-    COIL_STATION_AVAILABLE,
-    COIL_SWITCH_3_TO_1,
-    COIL_LOCK_CABLE,
-    COIL_ENABLE_RFID_AUTH,
-    COIL_EV41_COMPLIANCE,
-    COIL_DHCP_SETTING,
-)
+from ..const import DOMAIN, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,45 +37,53 @@ class WittySolarDataUpdateCoordinator(DataUpdateCoordinator[dict[str, any]]):
 
             data = {}
 
-            # Holding Registers auslesen (Beispiel-Blöcke oder Einzelregister)
-            # Live-Werte (CP State, PWM, Strom, Spannung, Leistung)
-            res_live = await self.client.read_holding_registers(address=0x0045, count=11)
+            # 1. Live & Measurement Registers (0x0043 to 0x004F)
+            res_live = await self.client.read_holding_registers(address=0x0043, count=13)
             if not res_live.isError():
-                data["cp_state"] = chr(res_live.registers[0] >> 8) + chr(res_live.registers[0] & 0xFF)
-                data["pwm_value"] = res_live.registers[1]
-                data["current_phase_1"] = res_live.registers[2] / 10.0
-                data["current_phase_2"] = res_live.registers[3] / 10.0 if res_live.registers[3] != 0x7FFF else 0
-                data["current_phase_3"] = res_live.registers[4] / 10.0 if res_live.registers[4] != 0x7FFF else 0
-                data["voltage_phase_1"] = res_live.registers[5] / 10.0 if res_live.registers[5] != 0xFFFF else 0
-                data["voltage_phase_2"] = res_live.registers[6] / 10.0 if res_live.registers[6] != 0xFFFF else 0
-                data["voltage_phase_3"] = res_live.registers[7] / 10.0 if res_live.registers[7] != 0xFFFF else 0
-                data["power_phase_1"] = res_live.registers[8] if res_live.registers[8] != 0xFFFF else 0
-                data["power_phase_2"] = res_live.registers[9] if res_live.registers[9] != 0xFFFF else 0
-                data["power_phase_3"] = res_live.registers[10] if res_live.registers[10] != 0xFFFF else 0
+                regs = res_live.registers
+                data["max_current_hw"] = regs[0]
+                data["max_current_pp"] = regs[1]
+                
+                # CP State (Register 0x0045)
+                cp_val = regs[2]
+                high_byte = cp_val >> 8
+                low_byte = cp_val & 0xFF
+                data["cp_state"] = f"{chr(high_byte)}{chr(low_byte) if low_byte else ''}".strip()
 
-            # Charging Current & Error
-            res_cfg = await self.client.read_holding_registers(address=0x0050, count=6)
+                data["pwm_value"] = regs[3]
+                data["current_phase_1"] = regs[4] / 10.0 if regs[4] != 0x7FFF else 0
+                data["current_phase_2"] = regs[5] / 10.0 if regs[5] != 0x7FFF else 0
+                data["current_phase_3"] = regs[6] / 10.0 if regs[6] != 0x7FFF else 0
+                data["voltage_phase_1"] = regs[7] / 10.0 if regs[7] != 0xFFFF else 0
+                data["voltage_phase_2"] = regs[8] / 10.0 if regs[8] != 0xFFFF else 0
+                data["voltage_phase_3"] = regs[9] / 10.0 if regs[9] != 0xFFFF else 0
+                data["power_phase_1"] = regs[10] if regs[10] != 0xFFFF else 0
+                data["power_phase_2"] = regs[11] if regs[11] != 0xFFFF else 0
+                data["power_phase_3"] = regs[12] if regs[12] != 0xFFFF else 0
+
+            # 2. Charging Current & Error Code (0x0050 to 0x0054)
+            res_cfg = await self.client.read_holding_registers(address=0x0050, count=5)
             if not res_cfg.isError():
-                data["max_charging_current"] = res_cfg.registers[0]
-                data["max_charging_current_fb"] = res_cfg.registers[1]
-                data["boost_solar_mode"] = res_cfg.registers[2]
-                data["access_control"] = res_cfg.registers[3]
-                data["error_code"] = res_cfg.registers[5]
+                cfg_regs = res_cfg.registers
+                data["max_charging_current"] = cfg_regs[0]
+                data["max_charging_current_fb"] = cfg_regs[1]
+                data["boost_solar_mode"] = cfg_regs[2]
+                data["access_control"] = cfg_regs[3]
+                data["error_code"] = cfg_regs[4]
 
-            # Energy Session (Registers 0x0069 - 0x006A)
+            # 3. Energy Session (0x0069 - 0x006A)
             res_energy = await self.client.read_holding_registers(address=0x0069, count=2)
             if not res_energy.isError():
-                # 32-bit integer combination
-                energy_wh = (res_energy.registers[0] << 16) + res_energy.registers[1]
-                data["energy_session"] = energy_wh
+                data["energy_session"] = (res_energy.registers[0] << 16) + res_energy.registers[1]
 
-            # Coils auslesen (Schalter & Status)
-            res_coils = await self.client.read_coils(address=0x0001, count=11)
+            # 4. Coils (Status & Switches)
+            res_coils = await self.client.read_coils(address=0x0001, count=12)
             if not res_coils.isError():
-                data["coil_station_available"] = res_coils.bits[0]
-                data["coil_switch_3_to_1"] = res_coils.bits[2]
-                data["coil_lock_cable"] = res_coils.bits[5]
-                data["coil_enable_rfid_auth"] = res_coils.bits[10]
+                bits = res_coils.bits
+                data["coil_station_available"] = bits[0]
+                data["coil_switch_3_to_1"] = bits[2]
+                data["coil_lock_cable"] = bits[5]
+                data["coil_enable_rfid_auth"] = bits[10]
 
             return data
 
