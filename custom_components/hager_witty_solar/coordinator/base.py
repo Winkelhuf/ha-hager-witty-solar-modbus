@@ -1,140 +1,122 @@
-"""DataUpdateCoordinator for the Hager Witty Modbus integration."""
-
+"""DataUpdateCoordinator for Hager Witty Solar."""
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
-import time
-from typing import TYPE_CHECKING, Any
+from pymodbus.client import AsyncModbusTcpClient
+from pymodbus.exceptions import ModbusException
 
-from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo, format_mac
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from ..client import WittyClient, WittyConnectionError, WittyIdentity, WittyRegisterError
-from ..const import DEFAULT_SCAN_INTERVAL, DOMAIN, LOGGER, OPTIONAL_BLOCK_RETRY_SECONDS
-from ..registers import POLL_BLOCKS, REGISTER_BY_KEY, decode_register, derive_values, encode_value
+from ..const import (
+    DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
+    REG_CP_STATE,
+    REG_PWM_VALUE,
+    REG_CURRENT_PHASE_1,
+    REG_CURRENT_PHASE_2,
+    REG_CURRENT_PHASE_3,
+    REG_VOLTAGE_PHASE_1,
+    REG_VOLTAGE_PHASE_2,
+    REG_VOLTAGE_PHASE_3,
+    REG_POWER_PHASE_1,
+    REG_POWER_PHASE_2,
+    REG_POWER_PHASE_3,
+    REG_MAX_CHARGING_CURRENT,
+    REG_MAX_CHARGING_CURRENT_FB,
+    REG_ERROR_CODE,
+    REG_ENERGY_SESSION,
+    REG_LED_INTENSITY,
+    COIL_STATION_AVAILABLE,
+    COIL_SWITCH_3_TO_1,
+    COIL_LOCK_CABLE,
+    COIL_ENABLE_RFID_AUTH,
+    COIL_EV41_COMPLIANCE,
+    COIL_DHCP_SETTING,
+)
 
-if TYPE_CHECKING:
-    from ..data import WittyConfigEntry
+_LOGGER = logging.getLogger(__name__)
 
+class WittySolarDataUpdateCoordinator(DataUpdateCoordinator[dict[str, any]]):
+    """Class to manage fetching Hager Witty Solar data from Modbus TCP."""
 
-class WittyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Polls all documented Witty registers in a few contiguous block reads."""
-
-    config_entry: WittyConfigEntry
-
-    def __init__(self, hass: HomeAssistant, entry: WittyConfigEntry, client: WittyClient) -> None:
-        """Initialise the coordinator."""
-        scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+    def __init__(self, hass: HomeAssistant, host: str, port: int) -> None:
+        """Initialize."""
+        self.client = AsyncModbusTcpClient(host=host, port=port)
         super().__init__(
             hass,
-            LOGGER,
-            config_entry=entry,
-            name=f"{DOMAIN} {entry.data[CONF_HOST]}",
-            update_interval=timedelta(seconds=scan_interval),
-        )
-        self.client = client
-        self.identity = WittyIdentity()
-        # block name -> monotonic time until which an optional block is not requested
-        self._skip_until: dict[str, float] = {}
-        # blocks for which the "rejected" warning was already logged (log it only once)
-        self._warned_blocks: set[str] = set()
-
-    # -- device ------------------------------------------------------------------
-
-    @property
-    def wallbox_id(self) -> str:
-        """Stable id of this wallbox (used for all unique ids)."""
-        return self.config_entry.unique_id or self.config_entry.data[CONF_HOST]
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Device registry information shared by all entities of this wallbox."""
-        identity = self.identity
-        connections = {(CONNECTION_NETWORK_MAC, format_mac(identity.mac_address))} if identity.mac_address else set()
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.wallbox_id)},
-            connections=connections,
-            manufacturer="Hager",
-            model=identity.product_reference or "WittyPlus",
-            name=self.config_entry.title,
-            serial_number=identity.wallbox_id,
-            sw_version=identity.software_version,
+            _LOGGER,
+            name=DOMAIN,
+            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
         )
 
-    # -- updates -----------------------------------------------------------------
-
-    async def _async_setup(self) -> None:
-        """Read the static device information once (before the first refresh)."""
+    async def _async_update_data(self) -> dict[str, any]:
+        """Fetch data from Witty Solar wallbox via Modbus."""
         try:
-            self.identity = await self.client.async_read_identity()
-        except WittyConnectionError as err:
-            raise UpdateFailed(f"Cannot reach the Witty at {self.client.host}: {err}") from err
+            if not self.client.connected:
+                await self.client.connect()
 
-    async def _async_update_data(self) -> dict[str, Any]:
-        """Read all blocks and return the decoded values."""
-        data: dict[str, Any] = {}
-        answered = 0
-        now = time.monotonic()
+            if not self.client.connected:
+                raise UpdateFailed("Failed to connect to Hager Witty Solar via Modbus TCP")
 
-        for block in POLL_BLOCKS:
-            if block.optional and now < self._skip_until.get(block.name, 0.0):
-                continue
-            try:
-                data.update(await self.client.async_read_block(block))
-            except WittyRegisterError as err:
-                # The wallbox is reachable but does not serve this block.
-                if block.optional:
-                    LOGGER.debug("Optional block %s not available, retrying later: %s", block.name, err)
-                    self._skip_until[block.name] = now + OPTIONAL_BLOCK_RETRY_SECONDS
-                elif block.name not in self._warned_blocks:
-                    self._warned_blocks.add(block.name)
-                    LOGGER.warning("Register block %s (0x%04X) was rejected: %s", block.name, block.start, err)
-                answered += 1
-                continue
-            except WittyConnectionError as err:
-                raise UpdateFailed(f"Communication with the Witty at {self.client.host} failed: {err}") from err
-            answered += 1
-            self._skip_until.pop(block.name, None)
+            data = {}
 
-        if not answered:  # pragma: no cover - defensive, POLL_BLOCKS is never empty
-            raise UpdateFailed("No register block could be read")
+            # Holding Registers auslesen (Beispiel-Blöcke oder Einzelregister)
+            # Live-Werte (CP State, PWM, Strom, Spannung, Leistung)
+            res_live = await self.client.read_holding_registers(address=0x0045, count=11)
+            if not res_live.isError():
+                data["cp_state"] = chr(res_live.registers[0] >> 8) + chr(res_live.registers[0] & 0xFF)
+                data["pwm_value"] = res_live.registers[1]
+                data["current_phase_1"] = res_live.registers[2] / 10.0
+                data["current_phase_2"] = res_live.registers[3] / 10.0 if res_live.registers[3] != 0x7FFF else 0
+                data["current_phase_3"] = res_live.registers[4] / 10.0 if res_live.registers[4] != 0x7FFF else 0
+                data["voltage_phase_1"] = res_live.registers[5] / 10.0 if res_live.registers[5] != 0xFFFF else 0
+                data["voltage_phase_2"] = res_live.registers[6] / 10.0 if res_live.registers[6] != 0xFFFF else 0
+                data["voltage_phase_3"] = res_live.registers[7] / 10.0 if res_live.registers[7] != 0xFFFF else 0
+                data["power_phase_1"] = res_live.registers[8] if res_live.registers[8] != 0xFFFF else 0
+                data["power_phase_2"] = res_live.registers[9] if res_live.registers[9] != 0xFFFF else 0
+                data["power_phase_3"] = res_live.registers[10] if res_live.registers[10] != 0xFFFF else 0
 
-        data.update(derive_values(data))
-        return data
+            # Charging Current & Error
+            res_cfg = await self.client.read_holding_registers(address=0x0050, count=6)
+            if not res_cfg.isError():
+                data["max_charging_current"] = res_cfg.registers[0]
+                data["max_charging_current_fb"] = res_cfg.registers[1]
+                data["boost_solar_mode"] = res_cfg.registers[2]
+                data["access_control"] = res_cfg.registers[3]
+                data["error_code"] = res_cfg.registers[5]
 
-    # -- writing -----------------------------------------------------------------
+            # Energy Session (Registers 0x0069 - 0x006A)
+            res_energy = await self.client.read_holding_registers(address=0x0069, count=2)
+            if not res_energy.isError():
+                # 32-bit integer combination
+                energy_wh = (res_energy.registers[0] << 16) + res_energy.registers[1]
+                data["energy_session"] = energy_wh
 
-    async def async_write_value(self, key: str, value: float) -> None:
-        """Write a physical value to the R/W register ``key`` and update the state."""
-        register = REGISTER_BY_KEY[key]
-        try:
-            words = encode_value(register, value)
-        except ValueError as err:
-            raise HomeAssistantError(
-                translation_domain=DOMAIN,
-                translation_key="invalid_value",
-                translation_placeholders={"error": str(err)},
-            ) from err
+            # Coils auslesen (Schalter & Status)
+            res_coils = await self.client.read_coils(address=0x0001, count=11)
+            if not res_coils.isError():
+                data["coil_station_available"] = res_coils.bits[0]
+                data["coil_switch_3_to_1"] = res_coils.bits[2]
+                data["coil_lock_cable"] = res_coils.bits[5]
+                data["coil_enable_rfid_auth"] = res_coils.bits[10]
 
-        try:
-            await self.client.async_write(register.address, words)
-        except WittyRegisterError as err:
-            raise HomeAssistantError(
-                translation_domain=DOMAIN,
-                translation_key="write_rejected",
-                translation_placeholders={"register": f"0x{register.address:04X}", "error": str(err)},
-            ) from err
-        except WittyConnectionError as err:
-            raise HomeAssistantError(
-                translation_domain=DOMAIN,
-                translation_key="write_failed",
-                translation_placeholders={"error": str(err)},
-            ) from err
+            return data
 
-        # Show the new value immediately, the next poll confirms it.
-        updated = {**(self.data or {}), key: decode_register(register, words)}
-        self.async_set_updated_data(updated)
+        except ModbusException as error:
+            raise UpdateFailed(f"Modbus communication error: {error}") from error
+
+    async def async_write_register(self, address: int, value: int) -> None:
+        """Write holding register to wallbox."""
+        if not self.client.connected:
+            await self.client.connect()
+        await self.client.write_register(address, value)
+        await self.async_request_refresh()
+
+    async def async_write_coil(self, address: int, value: bool) -> None:
+        """Write coil to wallbox."""
+        if not self.client.connected:
+            await self.client.connect()
+        await self.client.write_coil(address, value)
         await self.async_request_refresh()
