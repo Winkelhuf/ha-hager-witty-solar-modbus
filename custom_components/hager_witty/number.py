@@ -1,68 +1,55 @@
-"""Number-Plattform: einstellbare Ladeströme der Witty."""
-
+"""Support for Hager Witty Solar switches and coils."""
 from __future__ import annotations
 
-from homeassistant.components.number import (
-    NumberDeviceClass,
-    NumberEntity,
-    NumberEntityDescription,
-    NumberMode,
-)
-from homeassistant.const import EntityCategory, UnitOfElectricCurrent
+import logging
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .data import WittyConfigEntry
-from .entity import WittyEntity
+from .const import DOMAIN, COIL_STATION_AVAILABLE, COIL_SWITCH_3_TO_1, COIL_ENABLE_RFID_AUTH, COIL_EV41_COMPLIANCE
 
-# Schreibzugriffe nacheinander ausführen (die Wallbox erlaubt nur eine Verbindung).
-PARALLEL_UPDATES = 1
-
-# Register: Faktor 0,1 A, Wertebereich 0-320 (= 0-32 A). Die PWM-Auflösung der
-# Wallbox beträgt 0,6 A - feinere Werte werden von der Wallbox gerundet.
-NUMBER_DESCRIPTIONS: tuple[NumberEntityDescription, ...] = (
-    NumberEntityDescription(
-        key="max_current",
-        device_class=NumberDeviceClass.CURRENT,
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        native_min_value=0,
-        native_max_value=32,
-        native_step=0.1,
-        mode=NumberMode.BOX,
-    ),
-    NumberEntityDescription(
-        key="max_current_fallback",
-        device_class=NumberDeviceClass.CURRENT,
-        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
-        native_min_value=0,
-        native_max_value=32,
-        native_step=0.1,
-        mode=NumberMode.BOX,
-        entity_category=EntityCategory.CONFIG,
-    ),
-)
-
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: WittyConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    hass: HomeAssistant, entry: config_entries.ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte die Number-Plattform ein."""
-    coordinator = entry.runtime_data.coordinator
-    async_add_entities(WittyNumber(coordinator, description) for description in NUMBER_DESCRIPTIONS)
+    """Set up Witty Solar switch entities."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    
+    switches = [
+        WittySwitch(coordinator, "Station Available", COIL_STATION_AVAILABLE),
+        WittySwitch(coordinator, "Switch 3 to 1 Phase", COIL_SWITCH_3_TO_1),
+        WittySwitch(coordinator, "RFID Authentication", COIL_ENABLE_RFID_AUTH),
+        WittySwitch(coordinator, "EV41 Compliance", COIL_EV41_COMPLIANCE),
+    ]
+    
+    async_add_entities(switches)
 
+class WittySwitch(CoordinatorEntity, SwitchEntity):
+    """Representation of a Witty Solar Switch/Coil."""
 
-class WittyNumber(WittyEntity, NumberEntity):
-    """Ein beschreibbares Register (Ladestrom in A)."""
-
-    entity_description: NumberEntityDescription
+    def __init__(self, coordinator, name, coil_address):
+        """Initialize the switch."""
+        super().__init__(coordinator)
+        self.coordinator = coordinator
+        self._attr_name = f"Witty Solar {name}"
+        self._coil_address = coil_address
+        self._attr_unique_id = f"witty_solar_coil_{coil_address}"
 
     @property
-    def native_value(self) -> float | None:
-        """Gibt den aktuell gesetzten Wert zurück."""
-        return self.coordinator.data.get(self.entity_description.key)
+    def is_on(self) -> bool:
+        """Return true if the switch is on."""
+        return bool(self.coordinator.data.get(f"coil_{self._coil_address}", False))
 
-    async def async_set_native_value(self, value: float) -> None:
-        """Schreibe den neuen Wert in die Wallbox."""
-        await self.coordinator.async_write_value(self.entity_description.key, value)
+    async def async_turn_on(self, **kwargs) -> None:
+        """Turn the switch on."""
+        client = self.coordinator.modbus_client
+        await client.write_coil(self._coil_address, True)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs) -> None:
+        """Turn the switch off."""
+        client = self.coordinator.modbus_client
+        await client.write_coil(self._coil_address, False)
+        await self.coordinator.async_request_refresh()

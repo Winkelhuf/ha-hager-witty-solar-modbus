@@ -1,16 +1,10 @@
 {
-  "domain": "hager_witty",
-  "name": "Hager Witty Modbus",
-  "codeowners": [
-    "@Winkelhuf"
-  ],
-  "config_flow": true,
-  "documentation": "https://github.com/Winkelhuf/ha-hager-witty",
-  "integration_type": "device",
+  "domain": "hager_witty_solar",
+  "name": "Hager Witty Solar EVCS",
+  "codeowners": ["@Winkelhuf"],
+  "documentation": "https://github.com/Winkelhuf/ha-hager-witty-solar-modbus",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Winkelhuf/ha-hager-witty/issues",
-  "requirements": [
-    "pymodbus>=3.11.0,<4.0.0"
-  ],
-  "version": "0.1.0"
+  "issue_tracker": "https://github.com/Winkelhuf/ha-hager-witty-solar-modbus/issues",
+  "requirements": ["pymodbus>=3.0.0"],
+  "version": "1.0.0"
 }
