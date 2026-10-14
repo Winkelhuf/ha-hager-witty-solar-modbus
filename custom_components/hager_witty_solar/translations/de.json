@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "data": {
-          "host": "IP-Adresse oder Hostname",
+          "host": "IP-Adresse / Host",
           "port": "Modbus Port"
         },
         "description": "Verbinde deine Hager Witty Solar Wallbox über Modbus TCP."
@@ -11,41 +11,85 @@
     },
     "error": {
       "cannot_connect": "Verbindung fehlgeschlagen",
-      "invalid_host": "Ungültige IP-Adresse oder Hostname"
+      "invalid_host": "Ungültiger Host",
+      "unknown": "Unbekannter Fehler"
     },
     "abort": {
-      "already_configured": "Dieses Gerät ist bereits konfiguriert"
+      "already_configured": "Dieses Gerät ist bereits konfiguriert."
     }
   },
   "entity": {
     "sensor": {
-      "cp_state": { "name": "Control Pilot Zustand" },
-      "pwm_value": { "name": "PWM Wert" },
-      "current_p1": { "name": "Strom Phase 1" },
-      "current_p2": { "name": "Strom Phase 2" },
-      "current_p3": { "name": "Strom Phase 3" },
-      "voltage_p1": { "name": "Spannung Phase 1" },
-      "voltage_p2": { "name": "Spannung Phase 2" },
-      "voltage_p3": { "name": "Spannung Phase 3" },
-      "power_p1": { "name": "Leistung Phase 1" },
-      "power_p2": { "name": "Leistung Phase 2" },
-      "power_p3": { "name": "Leistung Phase 3" },
-      "energy_session": { "name": "Energie (Ladesitzung)" },
-      "error_code": { "name": "Fehlercode" },
-      "rfid_tag_uid": { "name": "RFID Chip UID" },
-      "boost_solar_mode": { "name": "Boost/Solar Modus" },
-      "software_version": { "name": "Software Version" }
+      "cp_state": {
+        "name": "Control Pilot Zustand"
+      },
+      "pwm_value": {
+        "name": "PWM Wert"
+      },
+      "current_phase_1": {
+        "name": "Strom Phase 1"
+      },
+      "current_phase_2": {
+        "name": "Strom Phase 2"
+      },
+      "current_phase_3": {
+        "name": "Strom Phase 3"
+      },
+      "voltage_phase_1": {
+        "name": "Spannung Phase 1"
+      },
+      "voltage_phase_2": {
+        "name": "Spannung Phase 2"
+      },
+      "voltage_phase_3": {
+        "name": "Spannung Phase 3"
+      },
+      "power_phase_1": {
+        "name": "Leistung Phase 1"
+      },
+      "power_phase_2": {
+        "name": "Leistung Phase 2"
+      },
+      "power_phase_3": {
+        "name": "Leistung Phase 3"
+      },
+      "error_code": {
+        "name": "Fehlercode"
+      },
+      "energy_session": {
+        "name": "Energie Ladesitzung"
+      }
     },
     "switch": {
-      "station_available": { "name": "Station verfügbar (HMI entsperrt)" },
-      "switch_3_to_1": { "name": "1-Phasen-Modus erzwingen (Switch 3to1)" },
-      "enable_rfid_auth": { "name": "RFID-Authentifizierung aktivieren" },
-      "ev41_compliance": { "name": "EV41 Konformität" }
+      "station_available": {
+        "name": "Station verfügbar (HMI)"
+      },
+      "switch_3_to_1": {
+        "name": "1-Phasen-Modus erzwingen"
+      },
+      "lock_cable": {
+        "name": "Kabel verriegeln"
+      },
+      "enable_rfid_auth": {
+        "name": "RFID-Authentifizierung"
+      },
+      "ev41_compliance": {
+        "name": "EV41 Konformität"
+      },
+      "dhcp_setting": {
+        "name": "DHCP Client"
+      }
     },
     "number": {
-      "maximum_charging_current": { "name": "Maximaler Ladestrom" },
-      "maximum_charging_current_fallback": { "name": "Maximaler Ladestrom (Fallback)" },
-      "led_intensity": { "name": "LED Helligkeit" }
+      "max_charging_current": {
+        "name": "Maximaler Ladestrom"
+      },
+      "max_charging_current_fb": {
+        "name": "Maximaler Ladestrom (Fallback)"
+      },
+      "led_intensity": {
+        "name": "LED Helligkeit"
+      }
     }
   }
 }
