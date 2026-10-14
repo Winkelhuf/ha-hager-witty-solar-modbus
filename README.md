@@ -28,3 +28,5 @@ This Home Assistant custom component allows local integration and control of the
 2. Search for **Hager Witty Solar**.
 3. Enter your wallbox IP address and Modbus port (default: `502`).
 
+---
+
