@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="custom_components/witty_solar_wallbox/brand/logo.png" alt="Hager Witty Solar Wallbox" height="96">
-</p>
-
 # Hager Witty Solar Wallbox Integration for Home Assistant
 
 [![Validate](https://github.com/Winkelhuf/ha-hager-witty-solar-modbus/actions/workflows/validate.yml/badge.svg)](https://github.com/Winkelhuf/ha-hager-witty-solar-modbus/actions/workflows/validate.yml)
