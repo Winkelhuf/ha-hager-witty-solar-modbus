@@ -1,0 +1,204 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect Witty Solar Wallbox",
+        "description": "IP address, Modbus TCP port and Modbus unit ID of the wallbox's EVCS communication board (B1280). If unsure, keep unit ID 1.",
+        "data": {
+          "host": "Host / IP address",
+          "port": "Port",
+          "slave": "Modbus unit ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the wallbox. Check IP/port and make sure the Modbus TCP interface is enabled."
+    },
+    "abort": {
+      "already_configured": "This wallbox is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cp_state": {
+        "name": "CP state",
+        "state": {
+          "a1": "A1 – No vehicle connected",
+          "a2": "A2 – No vehicle connected (PWM active)",
+          "b1": "B1 – Vehicle connected, not ready",
+          "b2": "B2 – Vehicle connected, charging released",
+          "c1": "C1 – Vehicle requests charging (no PWM)",
+          "c2": "C2 – Charging",
+          "e": "E – Error (no CP signal)",
+          "f": "F – Error (station unavailable)"
+        }
+      },
+      "led_mode": {
+        "name": "LED mode",
+        "state": {
+          "witty_start": "Witty Start (default)",
+          "boost": "Boost",
+          "solar": "Solar"
+        }
+      },
+      "session_state": {
+        "name": "Session state",
+        "state": {
+          "no_session": "No session",
+          "running": "Running",
+          "ended": "Ended"
+        }
+      },
+      "error_code": {
+        "name": "Error code",
+        "state": {
+          "no_error": "No error",
+          "cable_failure": "Cable failure",
+          "cp_short_circuit_failure": "CP short circuit",
+          "car_overconsumption": "Car overconsumption",
+          "ventilation_error": "Ventilation error",
+          "cp_failure": "CP failure",
+          "rcd_6ma_detection": "6mA residual current detected",
+          "rfid_reader_error": "RFID reader error",
+          "fatal_error_current_selector": "Fatal error: current selector",
+          "fatal_error_welded_contact_1": "Fatal error: welded contact 1",
+          "fatal_error_dc_sensor_6ma": "Fatal error: DC 6mA sensor",
+          "neutral_breakage": "Neutral breakage"
+        }
+      },
+      "access_control": {
+        "name": "Access control",
+        "state": {
+          "standalone": "Standalone (key unused)",
+          "key_switch": "Key switch"
+        }
+      },
+      "hardware_config": {
+        "name": "Hardware configuration",
+        "state": {
+          "domestic_plug_and_keyswitch": "Domestic plug + keyswitch",
+          "keyswitch": "Keyswitch only",
+          "domestic_plug": "Domestic plug only",
+          "none": "Neither"
+        }
+      },
+      "pulse_weight": {
+        "name": "Meter type",
+        "state": {
+          "estimated_no_meter": "Estimated (no meter)",
+          "ecp140d_single_phase": "ECP140D (single-phase)",
+          "ecp380d_three_phase": "ECP380D (three-phase)",
+          "saia_aae3": "SAIA AAE3"
+        }
+      },
+      "current_l1": {
+        "name": "Current L1"
+      },
+      "current_l2": {
+        "name": "Current L2"
+      },
+      "current_l3": {
+        "name": "Current L3"
+      },
+      "voltage_l1": {
+        "name": "Voltage L1"
+      },
+      "voltage_l2": {
+        "name": "Voltage L2"
+      },
+      "voltage_l3": {
+        "name": "Voltage L3"
+      },
+      "power_total": {
+        "name": "Total charging power"
+      },
+      "energy_session": {
+        "name": "Energy current session"
+      },
+      "timestamp_start_session": {
+        "name": "Session start"
+      },
+      "timestamp_stop_session": {
+        "name": "Session end"
+      },
+      "hw_current_limit": {
+        "name": "Hardware current limit"
+      },
+      "rfid_tag_uid": {
+        "name": "Last RFID tag UID"
+      },
+      "max_current_pp": {
+        "name": "Cable current limit (PP)"
+      },
+      "energy_charged_total": {
+        "name": "Charged energy (total)"
+      }
+    },
+    "binary_sensor": {
+      "datetime_not_set": {
+        "name": "Date/time not set"
+      },
+      "pulse_inconsistency": {
+        "name": "Meter inconsistency"
+      },
+      "rfid_reader_configured": {
+        "name": "RFID reader configured"
+      },
+      "type_ef_occupied": {
+        "name": "Schuko socket occupied"
+      },
+      "key_position": {
+        "name": "Key switch not in unlock position"
+      },
+      "vehicle_connected": {
+        "name": "Vehicle connected"
+      },
+      "charging": {
+        "name": "Charging"
+      }
+    },
+    "number": {
+      "max_charging_current": {
+        "name": "Maximum charging current"
+      },
+      "led_intensity": {
+        "name": "LED intensity"
+      }
+    },
+    "switch": {
+      "station_available": {
+        "name": "Charging station available"
+      },
+      "switch_3to1": {
+        "name": "Single-phase charging only"
+      },
+      "lock_cable": {
+        "name": "Lock cable permanently"
+      },
+      "rfid_auth_enabled": {
+        "name": "RFID authentication"
+      },
+      "boost_mode": {
+        "name": "Boost (full power)"
+      },
+      "charging_enabled": {
+        "name": "Charging enabled (0 A = stop)"
+      }
+    },
+    "select": {
+      "led_mode_select": {
+        "name": "LED mode",
+        "state": {
+          "witty_start": "Witty Start (default)",
+          "boost": "Boost",
+          "solar": "Solar"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "current_below_minimum": {
+      "message": "Charging currents between 1 A and {minimum} A are not allowed. Use 0 A to pause charging, or at least {minimum} A."
+    }
+  }
+}

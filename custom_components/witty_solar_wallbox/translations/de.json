@@ -1,0 +1,204 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Witty Solar Wallbox verbinden",
+        "description": "IP-Adresse, Modbus-TCP-Port und Modbus-Unit-ID des EVCS-Kommunikationsboards (B1280) der Wallbox. Im Zweifel Unit-ID 1 beibehalten.",
+        "data": {
+          "host": "Host / IP-Adresse",
+          "port": "Port",
+          "slave": "Modbus-Unit-ID"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zur Wallbox fehlgeschlagen. IP/Port prüfen und sicherstellen, dass die Modbus-TCP-Schnittstelle aktiviert ist."
+    },
+    "abort": {
+      "already_configured": "Diese Wallbox ist bereits konfiguriert."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cp_state": {
+        "name": "CP-Status",
+        "state": {
+          "a1": "A1 – Kein Fahrzeug angeschlossen",
+          "a2": "A2 – Kein Fahrzeug angeschlossen (PWM aktiv)",
+          "b1": "B1 – Fahrzeug angeschlossen, nicht bereit",
+          "b2": "B2 – Fahrzeug angeschlossen, Laden freigegeben",
+          "c1": "C1 – Fahrzeug fordert Laden an (ohne PWM)",
+          "c2": "C2 – Laden",
+          "e": "E – Fehler (kein CP-Signal)",
+          "f": "F – Fehler (Station nicht verfügbar)"
+        }
+      },
+      "led_mode": {
+        "name": "LED-Modus",
+        "state": {
+          "witty_start": "Witty Start (Standard)",
+          "boost": "Boost",
+          "solar": "Solar"
+        }
+      },
+      "session_state": {
+        "name": "Session-Status",
+        "state": {
+          "no_session": "Keine Session",
+          "running": "Läuft",
+          "ended": "Beendet"
+        }
+      },
+      "error_code": {
+        "name": "Fehlercode",
+        "state": {
+          "no_error": "Kein Fehler",
+          "cable_failure": "Kabelfehler",
+          "cp_short_circuit_failure": "CP-Kurzschluss",
+          "car_overconsumption": "Fahrzeug-Überverbrauch",
+          "ventilation_error": "Lüftungsfehler",
+          "cp_failure": "CP-Fehler",
+          "rcd_6ma_detection": "6-mA-Fehlerstrom erkannt",
+          "rfid_reader_error": "RFID-Lesegerät-Fehler",
+          "fatal_error_current_selector": "Schwerer Fehler: Stromwahlschalter",
+          "fatal_error_welded_contact_1": "Schwerer Fehler: Kontakt 1 verschweißt",
+          "fatal_error_dc_sensor_6ma": "Schwerer Fehler: DC-6-mA-Sensor",
+          "neutral_breakage": "Neutralleiterunterbrechung"
+        }
+      },
+      "access_control": {
+        "name": "Zugangskontrolle",
+        "state": {
+          "standalone": "Eigenständig (Taste ungenutzt)",
+          "key_switch": "Schlüsselschalter"
+        }
+      },
+      "hardware_config": {
+        "name": "Hardware-Konfiguration",
+        "state": {
+          "domestic_plug_and_keyswitch": "Schuko-Steckdose + Schlüsselschalter",
+          "keyswitch": "Nur Schlüsselschalter",
+          "domestic_plug": "Nur Schuko-Steckdose",
+          "none": "Keins von beiden"
+        }
+      },
+      "pulse_weight": {
+        "name": "Zählertyp",
+        "state": {
+          "estimated_no_meter": "Geschätzt (kein Zähler)",
+          "ecp140d_single_phase": "ECP140D (1-phasig)",
+          "ecp380d_three_phase": "ECP380D (3-phasig)",
+          "saia_aae3": "SAIA AAE3"
+        }
+      },
+      "current_l1": {
+        "name": "Strom L1"
+      },
+      "current_l2": {
+        "name": "Strom L2"
+      },
+      "current_l3": {
+        "name": "Strom L3"
+      },
+      "voltage_l1": {
+        "name": "Spannung L1"
+      },
+      "voltage_l2": {
+        "name": "Spannung L2"
+      },
+      "voltage_l3": {
+        "name": "Spannung L3"
+      },
+      "power_total": {
+        "name": "Ladeleistung gesamt"
+      },
+      "energy_session": {
+        "name": "Energie aktuelle Session"
+      },
+      "timestamp_start_session": {
+        "name": "Session-Start"
+      },
+      "timestamp_stop_session": {
+        "name": "Session-Ende"
+      },
+      "hw_current_limit": {
+        "name": "Hardware-Stromlimit"
+      },
+      "rfid_tag_uid": {
+        "name": "Letzte RFID-Tag-UID"
+      },
+      "max_current_pp": {
+        "name": "Kabel-Stromlimit (PP)"
+      },
+      "energy_charged_total": {
+        "name": "Geladene Energie (gesamt)"
+      }
+    },
+    "binary_sensor": {
+      "datetime_not_set": {
+        "name": "Datum/Uhrzeit nicht gesetzt"
+      },
+      "pulse_inconsistency": {
+        "name": "Zähler-Inkonsistenz"
+      },
+      "rfid_reader_configured": {
+        "name": "RFID-Lesegerät konfiguriert"
+      },
+      "type_ef_occupied": {
+        "name": "Schuko-Buchse belegt"
+      },
+      "key_position": {
+        "name": "Schlüsselschalter nicht in Entriegelt-Position"
+      },
+      "vehicle_connected": {
+        "name": "Fahrzeug angeschlossen"
+      },
+      "charging": {
+        "name": "Lädt"
+      }
+    },
+    "number": {
+      "max_charging_current": {
+        "name": "Maximaler Ladestrom"
+      },
+      "led_intensity": {
+        "name": "LED-Helligkeit"
+      }
+    },
+    "switch": {
+      "station_available": {
+        "name": "Ladestation verfügbar"
+      },
+      "switch_3to1": {
+        "name": "Nur 1 Phase laden"
+      },
+      "lock_cable": {
+        "name": "Kabel dauerhaft verriegeln"
+      },
+      "rfid_auth_enabled": {
+        "name": "RFID-Authentifizierung"
+      },
+      "boost_mode": {
+        "name": "Boost (volle Leistung)"
+      },
+      "charging_enabled": {
+        "name": "Laden freigegeben (0 A = Stopp)"
+      }
+    },
+    "select": {
+      "led_mode_select": {
+        "name": "LED-Modus",
+        "state": {
+          "witty_start": "Witty Start (Standard)",
+          "boost": "Boost",
+          "solar": "Solar"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "current_below_minimum": {
+      "message": "Ladeströme zwischen 1 A und {minimum} A sind nicht erlaubt. Mit 0 A wird das Laden pausiert, sonst mindestens {minimum} A."
+    }
+  }
+}

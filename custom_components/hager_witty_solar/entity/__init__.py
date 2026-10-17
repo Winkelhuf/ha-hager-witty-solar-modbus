@@ -1,1 +1,0 @@
-"""Entity package for Hager Witty Solar."""

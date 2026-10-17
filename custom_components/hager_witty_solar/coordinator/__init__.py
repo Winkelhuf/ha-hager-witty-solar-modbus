@@ -1,1 +1,0 @@
-"""Coordinator package for Hager Witty Solar."""
